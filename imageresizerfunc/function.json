@@ -9,14 +9,14 @@
     },
     {
       "type": "blob",
-      "name": "imagescontainer",
+      "name": "inputBlob",
       "path": "images/{queueTrigger}",
       "connection": "STORAGE_CONNECTION_STRING",
       "direction": "in"
     },
     {
       "type": "blob",
-      "name": "thumbnailscontainer",
+      "name": "outputBlob",
       "path": "thumbnails/thumbnail-{queueTrigger}",
       "connection": "STORAGE_CONNECTION_STRING",
       "direction": "out"
