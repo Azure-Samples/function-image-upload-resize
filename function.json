@@ -1,0 +1,26 @@
+{
+  "bindings": [
+    {
+      "name": "myQueueItem",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "%QUEUE%",
+      "connection": "STORAGE_CONNECTION_STRING"
+    },
+    {
+      "type": "blob",
+      "name": "imagescontainer",
+      "path": "images/{queueTrigger}",
+      "connection": "STORAGE_CONNECTION_STRING",
+      "direction": "in"
+    },
+    {
+      "type": "blob",
+      "name": "thumbnailscontainer",
+      "path": "thumbnails/thumbnail-{queueTrigger}",
+      "connection": "STORAGE_CONNECTION_STRING",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}
