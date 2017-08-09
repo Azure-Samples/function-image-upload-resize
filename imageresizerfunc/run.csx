@@ -7,8 +7,9 @@ public static void Run(string myQueueItem, Stream inputBlob, Stream outputBlob, 
     
     var instructions = new Instructions
     {
-        Width = 200,
-        Mode = FitMode.Carve,
+        Width = 150,
+        Height = 150,
+        Mode = FitMode.Crop,
         Scale = ScaleMode.Both
     };
     ImageBuilder.Current.Build(new ImageJob(inputBlob, outputBlob, instructions));
