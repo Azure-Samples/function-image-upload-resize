@@ -1,24 +1,22 @@
 {
   "bindings": [
     {
-      "name": "myQueueItem",
-      "type": "queueTrigger",
-      "direction": "in",
-      "queueName": "%QUEUE%",
-      "connection": "AzureWebJobsStorage"
+      "type": "EventGridTrigger",
+      "name": "e",
+      "direction": "in"
     },
     {
       "type": "blob",
       "name": "inputBlob",
-      "path": "images/{queueTrigger}",
-      "connection": "AzureWebJobsStorage",
+      "path": "images/{EventGridTrigger}",
+      "connection": "zhstore2_STORAGE",
       "direction": "in"
     },
     {
       "type": "blob",
       "name": "outputBlob",
-      "path": "thumbnails/thumbnail-{queueTrigger}",
-      "connection": "AzureWebJobsStorage",
+      "path": "thumbs/thumb-{EventGridTrigger}",
+      "connection": "zhstore2_STORAGE",
       "direction": "out"
     }
   ],
