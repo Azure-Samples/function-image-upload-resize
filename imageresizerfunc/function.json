@@ -8,16 +8,9 @@
     {
       "type": "blob",
       "name": "inputBlob",
-      "path": "images/{EventGridTrigger}",
+      "path": "{data.url}",
       "connection": "zhstore2_STORAGE",
       "direction": "in"
-    },
-    {
-      "type": "blob",
-      "name": "outputBlob",
-      "path": "thumbs/thumb-{EventGridTrigger}",
-      "connection": "zhstore2_STORAGE",
-      "direction": "out"
     }
   ],
   "disabled": false
