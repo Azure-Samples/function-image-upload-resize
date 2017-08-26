@@ -1,5 +1,6 @@
 #r "Microsoft.Azure.WebJobs.Extensions.EventGrid"
 #r "Microsoft.WindowsAzure.Storage"
+
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Azure.WebJobs.Host.Bindings.Runtime;
 using Microsoft.WindowsAzure.Storage; 
@@ -7,10 +8,11 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using ImageResizer;
 using ImageResizer.ExtensionMethods;
 
-public static async Task Run(EventGridEvent e, Stream inputBlob, TraceWriter log)
+public static async Task Run(EventGridEvent myEvent, Stream inputBlob, TraceWriter log)
 {
-    log.Info(e == null? "null event" : e.ToString());
+    log.Info(myEvent.ToString());
 
+    // Instructions to resize the blob image
     var instructions = new Instructions
     {
         Width = 150,
@@ -20,19 +22,20 @@ public static async Task Run(EventGridEvent e, Stream inputBlob, TraceWriter log
     };    
 
     // Get the blobname from the event
-    string blobname = e.Subject.Remove(0, e.Subject.LastIndexOf('/')+1);
+    string blobname = myEvent.Subject.Remove(0, myEvent.Subject.LastIndexOf('/')+1);
 
     // Retrieve storage account from connection string.
     CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-        System.Environment.GetEnvironmentVariable("zhstore2_STORAGE"));
+        System.Environment.GetEnvironmentVariable("myBlobStorage_STORAGE"));
 
     // Create the blob client.
     CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
     // Retrieve reference to a previously created container.
-    CloudBlobContainer container = blobClient.GetContainerReference("thumbs");
+    CloudBlobContainer container = blobClient.GetContainerReference(
+        System.Environment.GetEnvironmentVariable("myContainerName"));
 
-    // Retrieve reference to a blob named "myblob".
+    // Create reference to a blob named "blobname".
     CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobname);
 
     using(MemoryStream myStream = new MemoryStream())
