@@ -2,14 +2,14 @@
   "bindings": [
     {
       "type": "EventGridTrigger",
-      "name": "e",
+      "name": "myEvent",
       "direction": "in"
     },
     {
       "type": "blob",
       "name": "inputBlob",
       "path": "{data.url}",
-      "connection": "zhstore2_STORAGE",
+      "connection": "myblobstorage_STORAGE",
       "direction": "in"
     }
   ],
