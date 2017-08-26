@@ -8,6 +8,9 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using ImageResizer;
 using ImageResizer.ExtensionMethods;
 
+static string storageAccountConnectionString = System.Environment.GetEnvironmentVariable("myBlobStorage_STORAGE");
+static string thumbContainerName = System.Environment.GetEnvironmentVariable("myContainerName");
+
 public static async Task Run(EventGridEvent myEvent, Stream inputBlob, TraceWriter log)
 {
     log.Info(myEvent.ToString());
@@ -25,15 +28,13 @@ public static async Task Run(EventGridEvent myEvent, Stream inputBlob, TraceWrit
     string blobname = myEvent.Subject.Remove(0, myEvent.Subject.LastIndexOf('/')+1);
 
     // Retrieve storage account from connection string.
-    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(
-        System.Environment.GetEnvironmentVariable("myBlobStorage_STORAGE"));
+    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
 
     // Create the blob client.
     CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
     // Retrieve reference to a previously created container.
-    CloudBlobContainer container = blobClient.GetContainerReference(
-        System.Environment.GetEnvironmentVariable("myContainerName"));
+    CloudBlobContainer container = blobClient.GetContainerReference(thumbContainerName);
 
     // Create reference to a blob named "blobname".
     CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobname);
