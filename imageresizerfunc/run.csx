@@ -12,9 +12,20 @@ using ImageResizer.ExtensionMethods;
 static string storageAccountConnectionString = System.Environment.GetEnvironmentVariable("myBlobStorage_STORAGE");
 static string thumbContainerName = System.Environment.GetEnvironmentVariable("myContainerName");
 
-public static async Task Run(EventGridEvent myEvent, Stream inputBlob, TraceWriter log)
+public static async Task Run(EventGridEvent myEvent, TraceWriter log)
 {
     log.Info(myEvent.ToString());
+
+    // Get the blobname from the event's JObject.
+    var triggeredBlobUri = new Uri((string)myEvent.Data["url"]);
+
+    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
+    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+    
+    var cloudBlob = await blobClient.GetBlobReferenceFromServerAsync(triggeredBlobUri);
+
+    string containerName = GetContainerName(cloudBlob);
+    string blobName = GetBlobName(cloudBlob);
 
     // Instructions to resize the blob image.
     var instructions = new Instructions
@@ -23,38 +34,54 @@ public static async Task Run(EventGridEvent myEvent, Stream inputBlob, TraceWrit
         Height = 150,
         Mode = FitMode.Crop,
         Scale = ScaleMode.Both
-    };    
+    };
 
-    // Get the blobname from the event's JObject.
-    string blobName = GetBlobNameFromUrl((string)myEvent.Data["url"]);
+    var outputBlob = CreateOutputBlob(blobClient, blobName);
 
-    // Retrieve storage account from connection string.
-    CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageAccountConnectionString);
+    using(MemoryStream inStream = new MemoryStream())
+    {
+        await RequestInputBlob(cloudBlob, inStream);
+        ResetStreamPosition(inStream);
 
-    // Create the blob client.
-    CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+        using(MemoryStream outStream = new MemoryStream())
+        {
+            // Resize the image with the given instructions into the stream.
+            ImageBuilder.Current.Build(new ImageJob(inStream, outStream, instructions));
+            
+            // Reset the stream's position to the beginning.
+            ResetStreamPosition(outStream);
 
+            // Write the stream to the new blob.
+            await outputBlob.UploadFromStreamAsync(outStream);
+        }
+    }
+}
+
+private static async Task RequestInputBlob(ICloudBlob cloudBlob, Stream inputStream)
+{
+    await cloudBlob.DownloadToStreamAsync(inputStream);
+}
+
+private static ICloudBlob CreateOutputBlob(CloudBlobClient blobClient, string blobName)
+{
     // Retrieve reference to a previously created container.
     CloudBlobContainer container = blobClient.GetContainerReference(thumbContainerName);
 
     // Create reference to a blob named "blobName".
-    CloudBlockBlob blockBlob = container.GetBlockBlobReference(blobName);
-
-    using(MemoryStream myStream = new MemoryStream())
-    {  
-        // Resize the image with the given instructions into the stream.
-        ImageBuilder.Current.Build(new ImageJob(inputBlob, myStream, instructions));
-        
-        // Reset the stream's position to the beginning.
-        myStream.Position = 0;
-
-        // Write the stream to the new blob.
-        await blockBlob.UploadFromStreamAsync(myStream);
-    }
+    return container.GetBlockBlobReference(blobName);
 }
-private static string GetBlobNameFromUrl(string bloblUrl)
+
+private static string GetBlobName(ICloudBlob cloudBlob)
 {
-    var myUri = new Uri(bloblUrl);
-    var myCloudBlob = new CloudBlob(myUri);
-    return myCloudBlob.Name;
+    return cloudBlob.Name;
+}
+
+private static string GetContainerName(ICloudBlob cloudBlob)
+{
+    return cloudBlob.Container.Name;
+}
+
+private static void ResetStreamPosition(Stream stream)
+{
+    stream.Position = 0;
 }
