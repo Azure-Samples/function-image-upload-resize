@@ -4,13 +4,6 @@
       "type": "EventGridTrigger",
       "name": "myEvent",
       "direction": "in"
-    },
-    {
-      "type": "blob",
-      "name": "inputBlob",
-      "path": "{data.url}",
-      "connection": "myblobstorage_STORAGE",
-      "direction": "in"
     }
   ],
   "disabled": false
