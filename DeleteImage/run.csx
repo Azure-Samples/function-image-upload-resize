@@ -2,7 +2,7 @@
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
 
-#load "../shared/StorageHelper.cs"
+#load "../Shared/StorageHelper.cs"
 
 using Microsoft.WindowsAzure.Storage; 
 using Microsoft.WindowsAzure.Storage.Blob;
