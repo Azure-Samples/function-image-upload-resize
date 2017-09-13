@@ -1,3 +1,10 @@
 {
-
+  "bindings": [
+    {
+      "type": "EventGridTrigger",
+      "name": "myEvent",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
 }
