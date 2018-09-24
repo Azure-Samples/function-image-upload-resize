@@ -1,6 +1,7 @@
 #r "Microsoft.Azure.WebJobs.Extensions.EventGrid"
 #r "Microsoft.WindowsAzure.Storage"
 #r "Newtonsoft.Json"
+#r "ImageResizer"
 
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Azure.WebJobs.Host.Bindings.Runtime;
