@@ -1,5 +1,33 @@
+# Image Upload Resize 
 
-# Contributing
+This sample demonstrates how to respond to an `EventGridEvent` published by a storage account to resize  an image and upload a thumbnail.
+
+## Setup
+
+Before running this sample, you need to add your connection string to the `AzureWebJobsStorage` value in a file named `local.settings.json` file. This file is excluded from the git repository, so an example file named `local.settings.example.json` is provided.
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "<STORAGE_ACCOUNT_CONNECTION_STRING>",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "THUMBNAIL_CONTAINER_NAME": "thumbnails",
+    "datatype": "binary"
+  }
+}
+```
+
+To use this file, do the following steps:
+
+1. Replace `<STORAGE_ACCOUNT_CONNECTION_STRING>` with your storage account connection string
+2. Rename the file from `local.settings.example.json` to `local.settings.json` 
+
+## Version Support
+
+The `master` branch contains the Functions version 2.x implementation, while the `v1` branch has the Functions 1.x implementation.
+
+## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
