@@ -84,6 +84,7 @@ namespace ImageFunctions
 
                     if (encoder != null)
                     {
+                        var thumbnailWitdh = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH"));
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
                         var storageAccount = CloudStorageAccount.Parse(BLOB_STORAGE_CONNECTION_STRING);
                         var blobClient = storageAccount.CreateCloudBlobClient();
@@ -94,7 +95,10 @@ namespace ImageFunctions
                         using (var output = new MemoryStream())
                         using (Image<Rgba32> image = Image.Load(input))
                         {
-                            image.Mutate(x => x.Resize(image.Width / 2, image.Height / 2));
+                            var divisor = image.Width / thumbnailWitdh;
+                            var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                            image.Mutate(x => x.Resize(thumbnailWitdh, height));
                             image.Save(output, encoder);
                             output.Position = 0;
                             await blockBlob.UploadFromStreamAsync(output);
@@ -109,7 +113,6 @@ namespace ImageFunctions
             catch (Exception ex)
             {
                 log.LogInformation(ex.Message);
-                log.LogInformation(ex.ToString());
                 throw;
             }
         }
