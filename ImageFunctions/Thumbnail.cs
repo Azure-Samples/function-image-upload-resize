@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace ImageFunctions
 {
-    public static class Thunbnail
+    public static class Thumbnail
     {
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
