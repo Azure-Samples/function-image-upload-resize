@@ -7,12 +7,11 @@
 // Use for local testing:
 //   https://{ID}.ngrok.io/runtime/webhooks/EventGrid?functionName=Thumbnail
 
+using Azure.Storage.Blobs;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json.Linq;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -28,15 +27,15 @@ using System.Threading.Tasks;
 
 namespace ImageFunctions
 {
-    public static class Thunbnail
+    public static class Thumbnail
     {
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
 
         private static string GetBlobNameFromUrl(string bloblUrl)
         {
             var uri = new Uri(bloblUrl);
-            var cloudBlob = new CloudBlob(uri);
-            return cloudBlob.Name;
+            var blobClient = new BlobClient(uri);
+            return blobClient.Name;
         }
 
         private static IImageEncoder GetEncoder(string extension)
@@ -89,11 +88,9 @@ namespace ImageFunctions
                     {
                         var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH"));
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
-                        var storageAccount = CloudStorageAccount.Parse(BLOB_STORAGE_CONNECTION_STRING);
-                        var blobClient = storageAccount.CreateCloudBlobClient();
-                        var container = blobClient.GetContainerReference(thumbContainerName);
+                        var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
+                        var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
                         var blobName = GetBlobNameFromUrl(createdEvent.Url);
-                        var blockBlob = container.GetBlockBlobReference(blobName);
 
                         using (var output = new MemoryStream())
                         using (Image<Rgba32> image = Image.Load(input))
@@ -104,7 +101,7 @@ namespace ImageFunctions
                             image.Mutate(x => x.Resize(thumbnailWidth, height));
                             image.Save(output, encoder);
                             output.Position = 0;
-                            await blockBlob.UploadFromStreamAsync(output);
+                            await blobContainerClient.UploadBlobAsync(blobName, output);
                         }
                     }
                     else
