@@ -42,7 +42,7 @@ namespace ImageFunctions
         {
             IImageEncoder encoder = null;
 
-            extension = extension.Replace(".", "");
+            extension = extension.Replace(".", "").ToLower();
 
             var isSupported = Regex.IsMatch(extension, "gif|png|jpe?g", RegexOptions.IgnoreCase);
 
