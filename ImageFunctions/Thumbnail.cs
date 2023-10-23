@@ -29,7 +29,7 @@ namespace ImageFunctions
 {
     public static class Thumbnail
     {
-        private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+        private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("IMAGES_STORAGE_ACCOUNT_CONNECTION_STRING");
 
         private static string GetBlobNameFromUrl(string bloblUrl)
         {
