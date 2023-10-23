@@ -30,6 +30,8 @@ namespace ImageFunctions
     public static class Thumbnail
     {
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+        private static readonly string THUMBNAIL_POSTFIX_FILENAME = "-thumbnail";
+
 
         private static string GetBlobNameFromUrl(string bloblUrl)
         {
@@ -88,10 +90,9 @@ namespace ImageFunctions
                     {
                         var thumbnailWidth = Convert.ToInt32(Environment.GetEnvironmentVariable("THUMBNAIL_WIDTH"));
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
-                        var thumbPostfixFilename = Environment.GetEnvironmentVariable("THUMBNAIL_POSTFIX_FILENAME") ?? "-thumbnail";
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
-                        var blobName = GetBlobNameFromUrl(createdEvent.Url).Replace(extension, thumbPostfixFilename + extension);
+                        var blobName = GetBlobNameFromUrl(createdEvent.Url).Replace(extension, THUMBNAIL_POSTFIX_FILENAME + extension);
 
                         using (var output = new MemoryStream())
                         using (Image image = Image.Load(input))
