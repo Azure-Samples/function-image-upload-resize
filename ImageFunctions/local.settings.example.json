@@ -1,8 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "<FUNCTION_STORAGE_ACCOUNT_CONNECTION_STRING>",
-    "IMAGES_STORAGE_ACCOUNT_CONNECTION_STRING": "<IMAGES_STORAGE_ACCOUNT_CONNECTION_STRING>",
+    "AzureWebJobsStorage": "<CONNECTION_STRING>",
     "THUMBNAIL_CONTAINER_NAME": "thumbnails",
     "THUMBNAIL_WIDTH": "100",
     "datatype": "binary"
