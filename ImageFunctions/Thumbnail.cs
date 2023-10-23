@@ -90,7 +90,7 @@ namespace ImageFunctions
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
-                        var blobName = GetBlobNameFromUrl(createdEvent.Url);
+                        var blobName = GetBlobNameFromUrl(createdEvent.Url).Replace(extension, '-thumbnail' + extension);
 
                         using (var output = new MemoryStream())
                         using (Image image = Image.Load(input))
