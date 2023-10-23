@@ -3,6 +3,7 @@
   "Values": {
     "AzureWebJobsStorage": "<CONNECTION_STRING>",
     "THUMBNAIL_CONTAINER_NAME": "thumbnails",
+    "THUMBNAIL_POSTFIX_FILENAME": "-thumbnail",
     "THUMBNAIL_WIDTH": "100",
     "datatype": "binary"
   }
