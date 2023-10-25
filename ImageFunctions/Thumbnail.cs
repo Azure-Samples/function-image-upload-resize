@@ -26,6 +26,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Image = SixLabors.ImageSharp.Image;
+
 namespace ImageFunctions
 {
     public static class Thumbnail
@@ -93,23 +95,27 @@ namespace ImageFunctions
                         var thumbContainerName = Environment.GetEnvironmentVariable("THUMBNAIL_CONTAINER_NAME");
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
+                        var originBlobName = GetBlobNameFromUrl(createdEvent.Url);
 
-                        thumbnailWidths.ForEach(async (width) =>
+                        using (Image<Rgba32> originImage = Image.Load<Rgba32>(input))
                         {
-                            var blobName = GetBlobNameFromUrl(createdEvent.Url).Replace(extension, THUMBNAIL_POSTFIX_FILENAME + width + extension);
-
-                            using (var output = new MemoryStream())
-                            using (Image image = Image.Load(input))
+                            thumbnailWidths.ForEach(async (width) =>
                             {
-                                var divisor = image.Width / width;
-                                var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+                                var image = originImage.CloneAs<Rgba32>();
+                                var blobName = originBlobName.Replace(extension, THUMBNAIL_POSTFIX_FILENAME + width + extension);
 
-                                image.Mutate(x => x.Resize(width, height));
-                                image.Save(output, encoder);
-                                output.Position = 0;
-                                await blobContainerClient.UploadBlobAsync(blobName, output);
-                            }
-                        });
+                                using (var output = new MemoryStream())
+                                {
+                                    var divisor = image.Width / width;
+                                    var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+
+                                    image.Mutate(x => x.Resize(width, height));
+                                    image.Save(output, encoder);
+                                    output.Position = 0;
+                                    await blobContainerClient.UploadBlobAsync(blobName, output);
+                                }
+                            });
+                        }
                     }
                     else
                     {
