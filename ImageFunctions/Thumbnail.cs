@@ -8,6 +8,7 @@
 //   https://{ID}.ngrok.io/runtime/webhooks/EventGrid?functionName=Thumbnail
 
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Microsoft.Azure.EventGrid.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
@@ -34,6 +35,7 @@ namespace ImageFunctions
     {
         private static readonly string BLOB_STORAGE_CONNECTION_STRING = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
         private static readonly string THUMBNAIL_POSTFIX_FILENAME = "-thumbnail-";
+        private static readonly string SUPPORTED_IMAGE_EXTENSIONS = "gif|png|jpe?g";
 
 
         private static string GetBlobNameFromUrl(string bloblUrl)
@@ -49,7 +51,7 @@ namespace ImageFunctions
 
             extension = extension.Replace(".", "");
 
-            var isSupported = Regex.IsMatch(extension, "gif|png|jpe?g", RegexOptions.IgnoreCase);
+            var isSupported = Regex.IsMatch(extension, SUPPORTED_IMAGE_EXTENSIONS, RegexOptions.IgnoreCase);
 
             if (isSupported)
             {
@@ -96,6 +98,7 @@ namespace ImageFunctions
                         var blobServiceClient = new BlobServiceClient(BLOB_STORAGE_CONNECTION_STRING);
                         var blobContainerClient = blobServiceClient.GetBlobContainerClient(thumbContainerName);
                         var originBlobName = GetBlobNameFromUrl(createdEvent.Url);
+                        var blobHttpHeader = new BlobHttpHeaders { ContentType = "image/" + extension.Replace(".", "") };
 
                         using (Image<Rgba32> originImage = Image.Load<Rgba32>(input))
                         {
@@ -106,13 +109,18 @@ namespace ImageFunctions
 
                                 using (var output = new MemoryStream())
                                 {
-                                    var divisor = image.Width / width;
-                                    var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
+                                    if (width <= image.Width)
+                                    {
+                                        var divisor = image.Width / width;
+                                        var height = Convert.ToInt32(Math.Round((decimal)(image.Height / divisor)));
 
-                                    image.Mutate(x => x.Resize(width, height));
+                                        image.Mutate(x => x.Resize(width, height));
+                                    }
+
                                     image.Save(output, encoder);
                                     output.Position = 0;
-                                    await blobContainerClient.UploadBlobAsync(blobName, output);
+
+                                    await blobContainerClient.GetBlobClient(blobName).UploadAsync(output, new BlobUploadOptions { HttpHeaders = blobHttpHeader });
                                 }
                             });
                         }
