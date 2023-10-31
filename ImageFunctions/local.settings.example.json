@@ -4,6 +4,7 @@
     "AzureWebJobsStorage": "<CONNECTION_STRING>",
     "THUMBNAIL_CONTAINER_NAME": "thumbnails",
     "THUMBNAIL_WIDTHS": "128,256",
+    "WEBP_SUPPORT": true,
     "datatype": "binary"
   }
 }
